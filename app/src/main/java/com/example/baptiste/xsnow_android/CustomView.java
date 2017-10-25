@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import java.util.Objects;
 import java.util.Random;
 
 public class CustomView extends SurfaceView implements SurfaceHolder.Callback {
@@ -28,12 +29,14 @@ public class CustomView extends SurfaceView implements SurfaceHolder.Callback {
     private Random mRand = new Random();
     private final int DELAI_CREATION_NOUVELLE_PARTICULE = 20;
     private final int DELAI_CREATION_NOUVELLE_PARTICULE_VENT = 5;
+    private SynchronizeObject mSynchronizedObject;
 
     public CustomView(Context context, int drawable1, int drawable2) {
         super(context);
         mSurfaceHolder = getHolder();
         mSurfaceHolder.addCallback(this);
         mThread = new DrawingThread();
+        mSynchronizedObject = new SynchronizeObject();
         int tailleImage = getResources().getDimensionPixelSize(R.dimen.tailleImage);
         mImage1 = BitmapFactory.decodeResource(context.getResources(), drawable1);
         mImage1 = getResizedBitmap(mImage1, tailleImage, tailleImage);
@@ -97,30 +100,32 @@ public class CustomView extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        Log.i(TAG, "------------Size  changed------------");
-        super.onSizeChanged(w, h, oldw, oldh);
-        mWidth = w;
-        mHeight = h;
-        mZoneDessin = new ZoneDessin[mWidth / 10][mHeight / 10];
-
-        for (int y = (mHeight / 10) - 1; y >= 0; y--) {
-            for (int x = (mWidth / 10) - 1; x >= 0; x--) {
-                int n = mRand.nextInt(10000);
-                if (n == 0) {
-                    if (mRand.nextInt(2) == 0) {
-                        mZoneDessin[x][y] = new ZoneDessin(mImage1);
+        synchronized (mSynchronizedObject) {
+            mSynchronizedObject.pauseOtherThread();
+            Log.i(TAG, "------------Size  changed------------");
+            super.onSizeChanged(w, h, oldw, oldh);
+            mWidth = w;
+            mHeight = h;
+            mZoneDessin = new ZoneDessin[mWidth / 10][mHeight / 10];
+            for (int y = (mHeight / 10) - 1; y >= 0; y--) {
+                for (int x = (mWidth / 10) - 1; x >= 0; x--) {
+                    int n = mRand.nextInt(10000);
+                    if (n == 0) {
+                        if (mRand.nextInt(2) == 0) {
+                            mZoneDessin[x][y] = new ZoneDessin(mImage1);
+                        } else {
+                            mZoneDessin[x][y] = new ZoneDessin(mImage2);
+                        }
                     } else {
-                        mZoneDessin[x][y] = new ZoneDessin(mImage2);
+                        mZoneDessin[x][y] = new ZoneDessin(null);
                     }
-                } else {
-                    mZoneDessin[x][y] = new ZoneDessin(null);
+                    int maxVitesse = mRand.nextInt(31 - 20) + 20;
+                    int direction = mRand.nextInt(maxVitesse);
+                    mZoneDessin[x][y].setDirectionVitesse(direction, maxVitesse);
                 }
-                int maxVitesse = mRand.nextInt(31 - 20) + 20;
-                int direction = mRand.nextInt(maxVitesse);
-                mZoneDessin[x][y].setDirectionVitesse(direction, maxVitesse);
             }
+            Log.i(TAG, "Width : " + mWidth + ", Height : " + mHeight);
         }
-        Log.i(TAG, "Width : " + mWidth + ", Height : " + mHeight);
     }
 
     @Override
@@ -167,7 +172,8 @@ public class CustomView extends SurfaceView implements SurfaceHolder.Callback {
 
             while (keepDrawing) {
                 Canvas canvas = null;
-                if (mZoneDessin != null) {
+                synchronized (mSynchronizedObject) {
+                    mSynchronizedObject.pauseOtherThread();
                     if (mCount % 2000 >= 1900 && mCount % 2000 <= 1999) { // wind to reinitialize the drawing zone
                         mVent = true;
                         for (int x = 0; x < mWidth / 10; x++) {
@@ -205,30 +211,32 @@ public class CustomView extends SurfaceView implements SurfaceHolder.Callback {
                             createElement(mVent);
                         }
                     }
+                }
+                mCount++;
 
-                    mCount++;
-
-                    try {
-                        // we take the canvas to draw
-                        canvas = mSurfaceHolder.lockCanvas();
-                        // we make sure that no other thread is accessing the holder
-                        synchronized (mSurfaceHolder) {
-                            if (!keepDrawing) {
-                                break;
-                            }
+                try {
+                    // we take the canvas to draw
+                    canvas = mSurfaceHolder.lockCanvas();
+                    // we make sure that no other thread is accessing the holder
+                    synchronized (mSurfaceHolder) {
+                        if (!keepDrawing) {
+                            break;
+                        }
+                        synchronized (mSynchronizedObject) {
+                            mSynchronizedObject.pauseOtherThread();
                             draw(canvas);
                         }
-                    } finally {
-                        // releasing the canvas to draw
-                        if (canvas != null) {
-                            mSurfaceHolder.unlockCanvasAndPost(canvas);
-                        }
                     }
+                } finally {
+                    // releasing the canvas to draw
+                    if (canvas != null) {
+                        mSurfaceHolder.unlockCanvasAndPost(canvas);
+                    }
+                }
 
-                    try {
-                        Thread.sleep(10);
-                    } catch (InterruptedException e) {
-                    }
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
                 }
             }
         }
