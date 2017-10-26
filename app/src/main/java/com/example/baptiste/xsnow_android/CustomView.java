@@ -11,7 +11,6 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-import java.util.Objects;
 import java.util.Random;
 
 public class CustomView extends SurfaceView implements SurfaceHolder.Callback {
@@ -55,7 +54,7 @@ public class CustomView extends SurfaceView implements SurfaceHolder.Callback {
         for (int y = (mHeight / 10) - 1; y >= 0; y--) {
             for (int x = (mWidth / 10) - 1; x >= 0; x--) {
                 if ((mZoneDessin[x][y].isImage())) {
-                    canvas.drawBitmap(mZoneDessin[x][y].getImage(), x * 10 - 5, y * 10 - 5, null);
+                    canvas.drawBitmap(mZoneDessin[x][y].getImage(), x * 10, y * 10, null);
                 }
             }
         }
