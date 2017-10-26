@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Xsnow_Android</string>
+
+    <string name="theme_neige">Thème neige</string>
+    <string name="theme_halloween">Thème halloween</string>
+    <string name="theme_automne">Thème automne</string>
 </resources>
