@@ -1,8 +1,5 @@
 package com.example.baptiste.xsnow_android;
 
-/**
- * Created by baptiste on 25/10/2017.
- */
 
 public class SynchronizeObject {
     public void pauseOtherThread() {

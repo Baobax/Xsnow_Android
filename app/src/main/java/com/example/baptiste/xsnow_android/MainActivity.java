@@ -2,15 +2,9 @@ package com.example.baptiste.xsnow_android;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.PixelFormat;
-import android.net.sip.SipAudioCall;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
-import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
 
 public class MainActivity extends Activity implements View.OnClickListener {
 
@@ -47,7 +41,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
             case R.id.btnNoel:
                 fond = R.drawable.fond_test;
                 image1 = R.drawable.bonnet_pere_noel;
-                image2 = R.drawable.canne_a_sucre;
+                image2 = R.drawable.bonnet_pere_noel; // à trouver
                 intent.putExtra("fond", fond);
                 intent.putExtra("image1", image1);
                 intent.putExtra("image2", image2);
