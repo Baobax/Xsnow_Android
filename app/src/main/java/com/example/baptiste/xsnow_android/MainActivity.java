@@ -17,10 +17,12 @@ public class MainActivity extends Activity implements View.OnClickListener {
         Button themeNoel = findViewById(R.id.btnNoel);
         Button themeHalloween = findViewById(R.id.btnHalloween);
         Button themeAutomne = findViewById(R.id.btnAutomne);
+        Button themeStValentin = findViewById(R.id.btnStValentin);
         themeNeige.setOnClickListener(this);
         themeNoel.setOnClickListener(this);
         themeHalloween.setOnClickListener(this);
         themeAutomne.setOnClickListener(this);
+        themeStValentin.setOnClickListener(this);
     }
 
     @Override
@@ -41,7 +43,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
             case R.id.btnNoel:
                 fond = R.drawable.fond_test;
                 image1 = R.drawable.bonnet_pere_noel;
-                image2 = R.drawable.bonnet_pere_noel; // à trouver
+                image2 = R.drawable.renne;
                 intent.putExtra("fond", fond);
                 intent.putExtra("image1", image1);
                 intent.putExtra("image2", image2);
@@ -60,6 +62,15 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 fond = R.drawable.fond_test;
                 image1 = R.drawable.feuille1;
                 image2 = R.drawable.feuille2;
+                intent.putExtra("fond", fond);
+                intent.putExtra("image1", image1);
+                intent.putExtra("image2", image2);
+                startActivity(intent);
+                break;
+            case R.id.btnStValentin:
+                fond = R.drawable.fond_test;
+                image1 = R.drawable.coeur;
+                image2 = R.drawable.rose;
                 intent.putExtra("fond", fond);
                 intent.putExtra("image1", image1);
                 intent.putExtra("image2", image2);

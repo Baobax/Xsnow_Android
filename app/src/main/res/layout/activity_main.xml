@@ -34,4 +34,11 @@
         android:text="@string/theme_automne"
         android:layout_gravity="center" />
 
+    <Button
+        android:id="@+id/btnStValentin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/theme_stValentin"
+        android:layout_gravity="center" />
+
 </LinearLayout>
