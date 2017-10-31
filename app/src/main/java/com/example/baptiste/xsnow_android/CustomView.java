@@ -15,20 +15,17 @@ import java.util.Random;
 
 public class CustomView extends SurfaceView implements SurfaceHolder.Callback {
     // holder
-    SurfaceHolder mSurfaceHolder;
+    private final SurfaceHolder mSurfaceHolder;
     // thread in which the drawing will be done
-    DrawingThread mThread;
+    private DrawingThread mThread;
     private static final String TAG = "MyActivity";
 
     private ZoneDessin mZoneDessin[][];
     private int mWidth, mHeight;
     private int mCount;
     private Bitmap mImage1, mImage2;
-    private boolean mVent;
     private Random mRand = new Random();
-    private final int DELAI_CREATION_NOUVELLE_PARTICULE = 20;
-    private final int DELAI_CREATION_NOUVELLE_PARTICULE_VENT = 5;
-    private SynchronizeObject mSynchronizedObject;
+    private final SynchronizeObject mSynchronizedObject;
     private int mTailleCase;
 
     public CustomView(Context context, int drawable1, int drawable2) {
@@ -69,10 +66,8 @@ public class CustomView extends SurfaceView implements SurfaceHolder.Callback {
         float scaleHeight = ((float) newHeight) / height;
         Matrix matrix = new Matrix();
         matrix.postScale(scaleWidth, scaleHeight);
-        Bitmap resizedBitmap = Bitmap.createBitmap(bm, 0, 0, width, height, matrix, false);
 
-        return resizedBitmap;
-
+        return Bitmap.createBitmap(bm, 0, 0, width, height, matrix, false);
     }
 
     public void createElement(boolean vent) {
@@ -157,6 +152,7 @@ public class CustomView extends SurfaceView implements SurfaceHolder.Callback {
                 mThread.join();
                 joined = true;
             } catch (InterruptedException e) {
+                Log.e(TAG, "Erreur : Thread.join");
             }
         }
         mThread = new DrawingThread();
@@ -169,14 +165,17 @@ public class CustomView extends SurfaceView implements SurfaceHolder.Callback {
 
         @Override
         public void run() {
+            final int DELAI_CREATION_NOUVELLE_PARTICULE = 20;
+            final int DELAI_CREATION_NOUVELLE_PARTICULE_VENT = 5;
+            final boolean VENT = true;
+            final boolean PAS_DE_VENT = false;
             int particleDirection;
 
             while (keepDrawing) {
                 Canvas canvas = null;
                 synchronized (mSynchronizedObject) {
                     mSynchronizedObject.pauseOtherThread();
-                    if (mCount % 4000 >= 3900 && mCount % 4000 <= 3999) { // wind to reinitialize the drawing zone
-                        mVent = true;
+                    if (mCount % 2500 >= 2400 && mCount % 2500 <= 2499) { // wind to reinitialize the drawing zone
                         for (int x = 0; x < mWidth / mTailleCase; x++) {
                             for (int y = (mHeight / mTailleCase) - 1; y >= 0; y--) {
                                 if ((mZoneDessin[x][y].isImage())) {
@@ -195,10 +194,9 @@ public class CustomView extends SurfaceView implements SurfaceHolder.Callback {
                         }
 
                         if ((mCount % DELAI_CREATION_NOUVELLE_PARTICULE_VENT) == 0) {
-                            createElement(mVent);
+                            createElement(VENT);
                         }
                     } else { // normal behavior without wind
-                        mVent = false;
                         for (int y = (mHeight / mTailleCase) - 2; y >= 0; y--) {
                             for (int x = (mWidth / mTailleCase) - 1; x >= 0; x--) {
                                 if ((mZoneDessin[x][y].isImage())) {
@@ -209,7 +207,7 @@ public class CustomView extends SurfaceView implements SurfaceHolder.Callback {
                         }
 
                         if ((mCount % DELAI_CREATION_NOUVELLE_PARTICULE) == 0) {
-                            createElement(mVent);
+                            createElement(PAS_DE_VENT);
                         }
                     }
                 }
@@ -238,6 +236,7 @@ public class CustomView extends SurfaceView implements SurfaceHolder.Callback {
                 try {
                     Thread.sleep(15);
                 } catch (InterruptedException e) {
+                    Log.e(TAG, "Erreur : Thread.sleep");
                 }
             }
         }
